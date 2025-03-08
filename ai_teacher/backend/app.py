@@ -8,7 +8,7 @@ from langchain_community.embeddings import HuggingFaceEmbeddings
 
 # ✅ Initialize Flask App
 app = Flask(__name__)
-CORS(app)  
+CORS(app)  # Enables CORS for frontend communication
 
 # ✅ Initialize LLM Model
 llm = CTransformers(
@@ -18,23 +18,21 @@ llm = CTransformers(
     config={"max_new_tokens": 200, "temperature": 0.7}
 )
 
-# ✅ Corrected: Use HuggingFace Embeddings for ChromaDB
+# ✅ Initialize ChromaDB with HuggingFace Embeddings
 embedding_model = HuggingFaceEmbeddings(model_name="BAAI/bge-small-en-v1.5")
-
-# ✅ Corrected: Initialize Chroma with Proper Embedding Model
 vector_store = Chroma(collection_name="teacher_feedback", embedding_function=embedding_model)
 
-# ✅ Generate Feedback Function
+# ✅ Function: Generate AI Feedback
 def generate_feedback(assignment_text):
     """
-    Retrieves similar past feedback and improves the grading process dynamically.
+    Retrieves similar past feedback and improves grading.
     """
     try:
         # 🔍 Retrieve Similar Assignments from ChromaDB
         similar_feedbacks = vector_store.similarity_search(assignment_text, k=2)
         context = "\n\n".join([doc.page_content for doc in similar_feedbacks]) if similar_feedbacks else "No similar feedback found."
 
-        # 📝 AI Prompt for Grading & Feedback
+        # 📝 AI Prompt for Feedback Generation
         prompt = f"""
         You are an AI teacher providing **detailed** feedback on student assignments.
 
@@ -53,13 +51,13 @@ def generate_feedback(assignment_text):
         📌 Keep feedback **specific and constructive**. Avoid generic comments.
         """
 
-        return llm.invoke(prompt)  # ✅ Use `invoke` for generating AI feedback
+        return llm.invoke(prompt)  # ✅ Use `invoke` for AI response
 
     except Exception as e:
         return f"Error in generating feedback: {str(e)}"
 
 
-# ✅ API Route: Submit Assignment (Adaptive Learning Enabled)
+# ✅ API Route: Submit Assignment (Adaptive Learning)
 @app.route("/submit", methods=["POST"])
 def submit_assignment():
     data = request.json
@@ -68,10 +66,9 @@ def submit_assignment():
     if not text:
         return jsonify({"error": "No assignment text provided"}), 400
 
-    # 📌 Step 1: AI Generates Feedback (with past cases)
     feedback = generate_feedback(text)
 
-    # 📌 Step 2: Store Assignment + AI Feedback in ChromaDB (Auto-Learning)
+    # 📌 Store Assignment + AI Feedback in ChromaDB
     vector_store.add_texts([text + "\n\n" + feedback])
 
     return jsonify({"feedback": feedback})
@@ -80,9 +77,6 @@ def submit_assignment():
 # ✅ API Route: Upload File
 @app.route("/upload", methods=["POST"])
 def upload_file():
-    """
-    Handles file uploads, reads the text, and generates feedback.
-    """
     if "file" not in request.files:
         return jsonify({"error": "No file part in request"}), 400
 
@@ -95,7 +89,7 @@ def upload_file():
         text = file.read().decode("utf-8")  # Read file content
         feedback = generate_feedback(text)
 
-        # 📌 Store the feedback in the vector store
+        # 📌 Store feedback in ChromaDB
         vector_store.add_texts([text + "\n\n" + feedback])
 
         return jsonify({"feedback": feedback})

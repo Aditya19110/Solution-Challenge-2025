@@ -1,4 +1,5 @@
 import { useState } from "react";
+import API_BASE_URL from "../config";  // Import the backend URL
 
 export default function FileUpload() {
   const [file, setFile] = useState(null);
@@ -36,7 +37,7 @@ export default function FileUpload() {
     formData.append("file", file);
 
     try {
-      const response = await fetch("http://127.0.0.1:5000/upload", {
+      const response = await fetch(`${API_BASE_URL}/upload`, {
         method: "POST",
         body: formData,
       });
@@ -44,9 +45,9 @@ export default function FileUpload() {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Failed to upload file");
 
-      setFeedback(`✅ AI Feedback: ${data.feedback}`);
+      setFeedback(`✅ AI Feedback:\n${data.feedback}`);
     } catch (error) {
-      setError(error.message);
+      setError(`❌ ${error.message}`);
     } finally {
       setLoading(false);
     }
