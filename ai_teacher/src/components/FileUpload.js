@@ -5,7 +5,6 @@ export default function FileUpload() {
 
   return (
     <div className="file-upload-container">
-      <h2 className="file-upload-title">Upload Assignment</h2>
       <input 
         type="file" 
         onChange={(e) => setFile(e.target.files[0])} 
