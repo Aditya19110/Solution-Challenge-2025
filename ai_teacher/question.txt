@@ -1,0 +1,11 @@
+Student Name: Aditya Kulkarni
+Course: Artificial Intelligence
+Assignment: Explain the concept of Neural Networks.
+
+Answer:
+A neural network is a computational model inspired by the human brain. It consists of layers of interconnected nodes, or neurons, that process data and learn patterns. The primary components of a neural network include:
+1. **Input Layer** - Receives raw data.
+2. **Hidden Layers** - Apply transformations to detect patterns.
+3. **Output Layer** - Produces the final prediction.
+
+Neural networks are widely used in deep learning, enabling applications such as image recognition, speech processing, and autonomous systems.
