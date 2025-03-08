@@ -1,70 +1,119 @@
-# Getting Started with Create React App
+# AI-Powered Teacher Feedback System
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Overview
+The **AI-Powered Teacher Feedback System** is an AI-driven platform designed to automate assignment grading and provide personalized feedback to students. It utilizes **LLMs, NLP, and Vector Databases** to evaluate text, handwritten, coding, and MCQ assignments.
 
-## Available Scripts
+### **Features**
+- 📖 **Automated Assignment Grading** (Text, Handwritten, Coding, MCQs)
+- 🤖 **AI-Powered Personalized Feedback**
+- 🔍 **Adaptive Learning with ChromaDB**
+- 🚀 **Real-time Processing with Fast API**
+- 🧠 **Neural Chat v3.1 for Natural Language Understanding**
 
-In the project directory, you can run:
+---
+## Tech Stack
+### **Frontend (React.js)**
+- **React.js** (UI Framework)
+- **TailwindCSS** (Styling)
+- **Axios** (API Calls)
+- **React Router** (Navigation)
 
-### `npm start`
+### **Backend (Flask, AI, VectorDB)**
+- **Flask** (Backend Framework)
+- **CTransformers (Neural Chat v3.1 - GGUF)**
+- **LangChain-Community** (LLM Framework)
+- **ChromaDB** (Vector Storage for Adaptive Learning)
+- **HuggingFace Embeddings** (Text Processing)
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+---
+## Installation & Setup
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### **1️⃣ Clone the Repository**
+```bash
+git clone https://github.com/your-username/ai-teacher-feedback.git
+cd ai-teacher-feedback
+```
 
-### `npm test`
+### **2️⃣ Setup & Run React Frontend**
+```bash
+cd frontend
+npm install  # Install dependencies
+npm start    # Start the React app
+```
+Your React app will now run at: **http://localhost:3000**
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+---
+## Backend Setup (Windows & macOS/Linux)
 
-### `npm run build`
+### **3️⃣ Navigate to Backend**
+```bash
+cd backend
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### **4️⃣ Create a Virtual Environment**
+#### ✅ **Windows**
+```bash
+python -m venv venv
+venv\Scripts\activate
+```
+#### ✅ **macOS/Linux**
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### **5️⃣ Install Required Dependencies**
+```bash
+pip install -r requirements.txt
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### **6️⃣ Run the Flask Backend**
+```bash
+python app.py
+```
+Your Flask API will now run at: **http://127.0.0.1:5000**
 
-### `npm run eject`
+---
+## Usage
+- 📝 **Submit Assignments** via the frontend.
+- 🤖 **AI evaluates and provides feedback**.
+- 📊 **Adaptive Learning** stores embeddings in ChromaDB.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+---
+## API Routes
+### **1️⃣ Test API**
+```http
+GET /
+```
+_Response:_ `{ "message": "AI Teacher Feedback System is running!" }`
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### **2️⃣ Submit Assignment**
+```http
+POST /submit
+```
+_Request Body:_
+```json
+{ "text": "Your assignment text here" }
+```
+_Response:_
+```json
+{ "feedback": "Your AI-generated feedback" }
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+---
+## Contributing
+💡 Want to contribute? Follow these steps:
+1. **Fork the repo**
+2. **Create a feature branch**
+3. **Commit your changes**
+4. **Push and open a PR** 🚀
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+---
+## License
+This project is licensed under the **MIT License**. Feel free to use and modify it.
 
-## Learn More
+---
+## **Contact**
+📧 Email: `kulkarniaditya262@gmail.com`  
+🔗 LinkedIn: [Your Profile](https://linkedin.com/in/aditya191103)
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
