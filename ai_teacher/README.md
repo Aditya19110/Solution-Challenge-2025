@@ -30,7 +30,7 @@ The **AI-Powered Teacher Feedback System** is an AI-driven platform designed to 
 
 ### **1️⃣ Clone the Repository**
 ```bash
-git clone https://github.com/your-username/ai-teacher-feedback.git
+git clone https://github.com/Aditya19110/Solution-Challenge-2025/tree/main/ai_teacher
 cd ai-teacher-feedback
 ```
 
