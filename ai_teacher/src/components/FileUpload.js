@@ -1,5 +1,5 @@
 import { useState } from "react";
-import API_BASE_URL from "../config";  // Import the backend URL
+import API_BASE_URL from "../config";  
 
 export default function FileUpload() {
   const [file, setFile] = useState(null);
@@ -19,7 +19,7 @@ export default function FileUpload() {
       }
 
       setFile(selectedFile);
-      setError(""); // Clear previous error
+      setError(""); 
     }
   };
 
@@ -57,7 +57,6 @@ export default function FileUpload() {
     <div className="file-upload-container">
       <h2>📤 Upload Assignment</h2>
       
-      {/* ✅ File Input */}
       <input
         type="file"
         accept=".txt,.pdf"
@@ -65,15 +64,12 @@ export default function FileUpload() {
         className="file-input"
       />
       
-      {/* ✅ Upload Button */}
       <button onClick={handleUpload} className="upload-btn" disabled={loading}>
         {loading ? "Uploading..." : "Upload"}
       </button>
 
-      {/* ✅ Show Feedback */}
       {feedback && <p className="feedback-text">{feedback}</p>}
 
-      {/* ❌ Show Errors */}
       {error && <p className="error-text">{error}</p>}
     </div>
   );
