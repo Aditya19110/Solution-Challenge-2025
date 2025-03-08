@@ -1,11 +1,17 @@
 import { useState } from "react";
+
 export default function FileUpload() {
   const [file, setFile] = useState(null);
+
   return (
-    <div className="p-4 border rounded bg-white shadow-md">
-      <h2 className="text-lg font-semibold">Upload Assignment</h2>
-      <input type="file" onChange={(e) => setFile(e.target.files[0])} className="mt-2" />
-      {file && <p className="mt-2">File: {file.name}</p>}
+    <div className="file-upload-container">
+      <h2 className="file-upload-title">Upload Assignment</h2>
+      <input 
+        type="file" 
+        onChange={(e) => setFile(e.target.files[0])} 
+        className="file-input"
+      />
+      {file && <p className="file-name">File: {file.name}</p>}
     </div>
   );
 }
