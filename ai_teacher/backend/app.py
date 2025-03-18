@@ -1,49 +1,57 @@
-import os
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+import os
+import chromadb
+from chromadb.utils.embedding_functions import SentenceTransformerEmbeddingFunction
 from langchain_community.vectorstores import Chroma
 from langchain_community.llms import CTransformers
-from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_community.embeddings import HuggingFaceEmbeddings  # ✅ Updated Import
+from pydantic import BaseModel  # ✅ Using Pydantic v2 directly
+from werkzeug.serving import WSGIRequestHandler
 
-# ✅ Initialize Flask App
+WSGIRequestHandler.timeout = 180  
+
 app = Flask(__name__)
-CORS(app)  # Enable CORS for frontend communication
+CORS(app)  # Enable CORS for frontend interaction
 
-# ✅ Define Model Path
-MODEL_PATH = os.path.abspath("models/neural-chat-7b-v3-1.Q4_K_M.gguf")
-if not os.path.exists(MODEL_PATH):
-    raise FileNotFoundError(f"❌ Model file not found at {MODEL_PATH}. Please check the path!")
+# ✅ Load Intel Neural Chat Model & Vector Database
+print("🚀 Loading Intel Neural Chat model...")
+MODEL_PATH = "models/neural-chat-7b-v3-1.Q4_K_M.gguf"
 
-# ✅ Load LLM Model (CTransformers)
 try:
     llm = CTransformers(
-        model=MODEL_PATH,  # ✅ Corrected parameter
-        model_type="mistral",
-        config={"max_new_tokens": 200, "temperature": 0.7}
+        model=MODEL_PATH,
+        model_type="mistral",  # Make sure this is correct for your Intel Neural Chat model
+        config={"max_new_tokens": 150, "temperature": 0.7}  # Adjust the max tokens & temperature
     )
+    print("✅ Intel Neural Chat Model Loaded Successfully!")
 except Exception as e:
-    raise RuntimeError(f"❌ Error loading LLM model: {str(e)}")
+    print(f"❌ Error loading model: {e}")
 
-# ✅ Initialize ChromaDB with HuggingFace Embeddings
-CHROMA_DB_PATH = "vector_store"
-embedding_model = HuggingFaceEmbeddings(model_name="BAAI/bge-small-en-v1.5")
-vector_store = Chroma(
-    collection_name="teacher_feedback",
-    persist_directory=CHROMA_DB_PATH,  # ✅ Persistent storage for ChromaDB
-    embedding_function=embedding_model
-)
+# ✅ Initialize Vector Database (ChromaDB)
+embedding_func = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
 
-# ✅ Function: Generate AI Feedback
+try:
+    vector_store = Chroma(persist_directory="./chroma_db", embedding_function=embedding_func)
+    print("✅ ChromaDB Initialized!")
+except Exception as e:
+    print(f"❌ Error initializing ChromaDB: {e}")
+
+@app.route("/", methods=["GET"])
+def home():
+    return jsonify({"message": "✅ AI Teacher Feedback System is running with Adaptive Learning!"})
+
 def generate_feedback(assignment_text):
     """
     Generates AI feedback based on assignment text and past feedback.
     """
     try:
-        # 🔍 Retrieve Similar Assignments
+        print("🔍 Retrieving similar feedback from ChromaDB...")
         similar_feedbacks = vector_store.similarity_search(assignment_text, k=2)
+        
         context = "\n\n".join([doc.page_content for doc in similar_feedbacks]) if similar_feedbacks else "No similar feedback found."
 
-        # 📝 AI Prompt for Feedback Generation
+        print("📝 Creating AI prompt...")
         prompt = f"""
         You are an AI teacher providing **detailed** feedback on student assignments.
 
@@ -62,71 +70,64 @@ def generate_feedback(assignment_text):
         📌 Keep feedback **specific and constructive**. Avoid generic comments.
         """
 
-        return llm.invoke(prompt)  
+        print("🤖 Sending prompt to Intel Neural Chat model...")
+        response = llm.invoke(prompt)  # ✅ Track if Intel LLM is hanging
+        
+        if not response:
+            return jsonify({"error": "❌ No response generated from the model"}), 500
+        
+        print("✅ AI Feedback generated successfully!")
+        return response
 
     except Exception as e:
-        return f"❌ Error in generating feedback: {str(e)}"
+        print(f"❌ Error in generating feedback: {str(e)}")
+        return jsonify({"error": f"❌ Error: {str(e)}"}), 500
 
-# ✅ API Route: Submit Assignment (Adaptive Learning)
-@app.route("/submit", methods=["POST"])
-def submit_assignment():
-    """
-    Handles text-based assignment submissions and generates AI feedback.
-    """
-    try:
-        data = request.json
-        text = data.get("text", "").strip()
-
-        if not text:
-            return jsonify({"error": "No assignment text provided"}), 400
-
-        feedback = generate_feedback(text)
-
-        # 📌 Store Assignment + AI Feedback in ChromaDB
-        vector_store.add_texts([text + "\n\n" + feedback])
-        vector_store.persist()  # ✅ Save data persistently
-
-        return jsonify({"feedback": feedback})
-
-    except Exception as e:
-        return jsonify({"error": f"❌ Submission error: {str(e)}"}), 500
-
-# ✅ API Route: Upload File (Text Assignments)
 @app.route("/upload", methods=["POST"])
-def upload_file():
+def upload_assignment():
     """
-    Handles file-based assignment uploads and generates AI feedback.
+    Handles file upload, extracts text, and generates AI feedback.
     """
+    print("📥 Received /upload request.")
+
+    if "file" not in request.files:
+        return jsonify({"error": "❌ No file uploaded"}), 400
+
+    file = request.files["file"]
+    
+    if file.filename == "":
+        return jsonify({"error": "❌ No selected file"}), 400
+
+    # ✅ Read file content
     try:
-        if "file" not in request.files:
-            return jsonify({"error": "No file part in request"}), 400
-
-        file = request.files["file"]
-        if file.filename == "":
-            return jsonify({"error": "No selected file"}), 400
-
-        text = file.read().decode("utf-8")  # Read file content
-        feedback = generate_feedback(text)
-
-        # 📌 Store feedback in ChromaDB
-        vector_store.add_texts([text + "\n\n" + feedback])
-        vector_store.persist()  # ✅ Save data persistently
-
+        file_content = file.read().decode("utf-8")
+        print(f"📜 File content preview: {file_content[:100]}...")  # Show first 100 characters
+        
+        # ✅ Generate AI Feedback
+        print("📥 Generating feedback for assignment...")
+        feedback = generate_feedback(file_content)
+        
         return jsonify({"feedback": feedback})
-
-    except UnicodeDecodeError:
-        return jsonify({"error": "❌ File decoding error. Ensure the file is UTF-8 encoded."}), 400
     except Exception as e:
-        return jsonify({"error": f"❌ File processing error: {str(e)}"}), 500
+        print(f"❌ Error processing file: {str(e)}")
+        return jsonify({"error": f"❌ Error: {str(e)}"}), 500
 
-# ✅ API Route: Home
-@app.route("/", methods=["GET"])
-def home():
+@app.route("/submit", methods=["POST"])
+def submit_text():
     """
-    Health check route for API status.
+    Handles direct text submission and generates feedback.
     """
-    return jsonify({"message": "✅ AI Teacher Feedback System is running with Adaptive Learning!"})
+    data = request.get_json()
+    
+    if "text" not in data or not data["text"].strip():
+        return jsonify({"error": "❌ No text provided"}), 400
+    
+    print(f"📜 Received text submission: {data['text'][:100]}...")  # Preview first 100 chars
+    
+    # ✅ Generate AI Feedback
+    feedback = generate_feedback(data["text"])
+    
+    return jsonify({"feedback": feedback})
 
-# ✅ Run Flask App
 if __name__ == "__main__":
     app.run(debug=True)

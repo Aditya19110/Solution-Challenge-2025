@@ -37,16 +37,23 @@ export default function FileUpload() {
     formData.append("file", file);
 
     try {
+      console.log("📤 Sending file to API...");
+      
       const response = await fetch(`${API_BASE_URL}/upload`, {
         method: "POST",
         body: formData,
       });
 
+      console.log("✅ API Response:", response);
+
       const data = await response.json();
+      console.log("📄 Response JSON:", data);
+
       if (!response.ok) throw new Error(data.error || "Failed to upload file");
 
       setFeedback(`✅ AI Feedback:\n${data.feedback}`);
     } catch (error) {
+      console.error("❌ Upload Error:", error.message);
       setError(`❌ ${error.message}`);
     } finally {
       setLoading(false);
